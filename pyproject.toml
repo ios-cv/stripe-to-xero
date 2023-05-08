@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "stripe-to-xero"
+version = "0.1.0"
+description = "A script to synchronise data from Stripe to Xero."
+authors = ["George Goldberg <george@appletreetechnology.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "stripe_to_xero"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+stripe = "^5.4.0"
+xero-python = "^1.23.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
