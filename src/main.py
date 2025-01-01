@@ -56,6 +56,8 @@ def migrate(xc):
             # Process Invoice
             if invoice['status'] == 'draft':
                 continue
+            if invoice['status'] == 'void':
+                continue
             else:
                 if not (START_DATE <= invoice["status_transitions"]["finalized_at"] <= END_DATE):
                     print(f"  !! Skipping invoice that was not finalised within the desired time window.")
@@ -74,5 +76,5 @@ if __name__ == "__main__":
     # xc.get_invoice_by_number("GOEV-0001")
     # xc.dump_tracking_categories()
     # xc.dump_chart_of_accounts()
-
+ 
     migrate(xc)

@@ -21,7 +21,9 @@ XERO_TRACKING_CATEGORY_ONE_OPTION_ID = os.getenv("XERO_TRACKING_CATEGORY_ONE_OPT
 XERO_TRACKING_CATEGORY_TWO_ID = os.getenv("XERO_TRACKING_CATEGORY_TWO_ID")
 XERO_TRACKING_CATEGORY_TWO_OPTION_ID = os.getenv("XERO_TRACKING_CATEGORY_TWO_OPTION_ID")
 XERO_ACCOUNT_STRIPE_SALES = os.getenv("XERO_ACCOUNT_STRIPE_SALES")
+XERO_ACCOUNT_STRIPE_SALES_LONG_TERM = os.getenv("XERO_ACCOUNT_STRIPE_SALES_LONG_TERM")
 XERO_ACCOUNT_STRIPE_BANK = os.getenv("XERO_ACCOUNT_STRIPE_BANK")
+XERO_CONTACT_IDS_LONG_TERM = os.getenv("XERO_CONTACT_IDS_LONG_TERM").split(",")
 
 api_client = ApiClient(
     Configuration(
@@ -106,8 +108,12 @@ class XeroClient:
 
             elif collection_method == "send_invoice":
                 x_contact = self.get_or_create_contact(invoice)
+            
+            account = XERO_ACCOUNT_STRIPE_SALES
+            if x_contact.contact_number in XERO_CONTACT_IDS_LONG_TERM:
+                account = XERO_ACCOUNT_STRIPE_SALES_LONG_TERM
 
-            x_line_items = self.migrate_line_items(invoice)
+            x_line_items = self.migrate_line_items(invoice, account)
 
             x_invoice = Invoice(
                 invoice_number=number,
@@ -140,7 +146,7 @@ class XeroClient:
                 r = self.accounting_api.create_payment(self.tenant_id, payment=x_payment)
                 # print(r)
 
-    def migrate_line_items(self, invoice):
+    def migrate_line_items(self, invoice, account):
         x_lines = []
 
         x_tc = []
@@ -162,7 +168,7 @@ class XeroClient:
 
             for line in lines['data']:
                 x_l = LineItem(
-                    account_code=XERO_ACCOUNT_STRIPE_SALES,
+                    account_code=account,
                     description=line["description"],
                     quantity=line["quantity"],
                     line_amount=line["amount_excluding_tax"] / 100,
