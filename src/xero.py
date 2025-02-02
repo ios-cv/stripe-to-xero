@@ -92,9 +92,16 @@ class XeroClient:
         due_date = datetime.fromtimestamp(invoice['due_date'], TZ) if invoice['due_date'] is not None else None
         date = datetime.fromtimestamp(invoice['status_transitions']['finalized_at'], TZ)
         collection_method = invoice["collection_method"]
+        po_number = ""
+
+        if "custom_fields" in invoice and invoice["custom_fields"] is not None:
+            for cf in invoice["custom_fields"]:
+                if cf["name"] == "Purchase Order No.":
+                    po_number = cf["value"]
 
         print(f"Inv Number: {number}")
         print(f"Date: {date}, Due Date: {due_date}")
+        print(f"PO Number: {po_number}")
 
         # Check if invoice already exists in Xero.
         xi = self.get_invoice_by_number(number)
@@ -125,6 +132,7 @@ class XeroClient:
                 type="ACCREC",
                 status="AUTHORISED",
                 sent_to_contact=True,
+                reference=po_number,
             )
 
             x_invoices = Invoices(invoices=[x_invoice])
