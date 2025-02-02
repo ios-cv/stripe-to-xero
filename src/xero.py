@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import stripe
+import xero_python.accounting
 from xero_python.api_client import ApiClient
 from xero_python.api_client.configuration import Configuration
 from xero_python.api_client.oauth2 import OAuth2Token
@@ -169,8 +170,8 @@ class XeroClient:
             for line in lines['data']:
                 x_l = LineItem(
                     account_code=account,
-                    description=line["description"],
-                    quantity=line["quantity"],
+                    description=f"{line['description']} (Quantity: {line['quantity']})",
+                    #quantity=line["quantity"], # Disable quantity to ensure we don't have any rounding issues with VAT.
                     line_amount=line["amount_excluding_tax"] / 100,
                     tax_amount=(line["amount"] - line["amount_excluding_tax"]) / 100,
                     tracking=x_tc,
